@@ -1433,7 +1433,7 @@ checkfunc(checkfunc_p)
 	registry.registerDriver(this);
 }
 
-const char * const DriverDescription::additionalInfo() const {
+const char * DriverDescription::additionalInfo() const {
 	return ((checkfunc != 0) ? (checkfunc()? "" : "(license key needed, see pstoedit manual)") : "");
 }
 

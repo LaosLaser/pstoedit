@@ -1,5 +1,5 @@
 
-#line 3 "F:\\pstoedit\\devbase\\Src\\lexyy.cpp"
+#line 3 "F:\\pstoedit\\devbase\\src\\lexyy.cpp"
 
 #define  YY_INT_ALIGNED short int
 

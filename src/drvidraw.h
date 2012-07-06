@@ -58,13 +58,11 @@ private:
   } color[IDRAW_NUMCOLORS];
 
   // Scale a PostScript value to an idraw value
-#if 0
-  inline const float iscale(float invalue) const { return invalue; }
-#else
-  inline const unsigned int iscale(float invalue) const {
+
+  inline  unsigned int iscale(float invalue) const {
      return (unsigned int) (invalue/IDRAW_SCALING + 0.5);
   }
-#endif
+
 private:
 
      //  int           objectId;

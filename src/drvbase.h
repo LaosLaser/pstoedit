@@ -949,7 +949,7 @@ public:
 
 	virtual unsigned int getdrvbaseVersion() const { return 0; } // this is only needed for the driverless backends (ps/dump/gs)
 
-	const char * const additionalInfo() const;
+	const char * additionalInfo() const;
  // Data members
 	const char * const symbolicname;
 	const char * const short_explanation;

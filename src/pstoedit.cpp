@@ -877,6 +877,7 @@ To get the pre 8.00 behaviour, either use -dNOEPS or run the file with (filename
 				const char *successstring;	// string that indicated success of .pro
 				ofstream inFileStream(gsin.value());
 				inFileStream << "/pstoedit.pagetoextract " << options.pagetoextract << " def" << endl;
+				inFileStream << "/pstoedit.versioninfo (" << version << " " << compversion << ") def" << endl;
 				if (options.nomaptoisolatin1) {
 					inFileStream << "/pstoedit.maptoisolatin1 false def" << endl;
 				}
@@ -921,6 +922,9 @@ To get the pre 8.00 behaviour, either use -dNOEPS or run the file with (filename
 					inFileStream << "/pstoedit.textastext false def" << endl;
 				} else {
 					inFileStream << "/pstoedit.textastext true def" << endl;
+				}
+				if (options.DrawGlyphBitmaps) {
+					inFileStream << "/pstoedit.DrawGlyphBitmaps true def" << endl;
 				}
 				if (options.disabledrawtext) {
 					inFileStream << "/pstoedit.disabledrawtext true def" << endl;

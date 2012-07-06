@@ -183,10 +183,18 @@ int callgs(int argc, const char * const argv[]) {
 				p++;
 				*p = 0; 
 			}
-			RSString exename(dlldirname);
+			const RSString gsdir(dlldirname);
 			delete[] dlldirname;
 
-			exename += "gswin32c.exe";
+#ifdef _WIN64
+			const RSString defaultexe(gsdir + RSString("gswin64c.exe"));
+			const RSString fallbackexe(gsdir + RSString("gswin32c.exe"));
+
+#else
+			const RSString defaultexe(gsdir + RSString("gswin32c.exe"));
+			const RSString fallbackexe(gsdir + RSString("gswin64c.exe"));
+#endif
+			const RSString exename( fileExists(defaultexe.value()) ? defaultexe : fallbackexe );
 			if (verbose) {
 				cerr << "loading DLL: " << argv[0] << " failed (possibly due to 32/64 bit mix - reverting to call gs as exe via: " << exename << endl;
 			}
