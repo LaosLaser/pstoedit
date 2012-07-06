@@ -40,7 +40,7 @@ class PSFrontEnd {
 public:
 	PSFrontEnd(ostream & outfile_p, 
 			ostream & errstream,
-			const PsToEditOptions & globaloptions_p,
+			PsToEditOptions & globaloptions_p,
 			const char * infilename_p = 0,
 			const char * outfilename_p = 0, 
 			const DriverDescription * driverDesc = 0, 
@@ -73,7 +73,7 @@ private:
 	ostream &	errf;           // the error stream
 	const char * 	infilename;	
 	const char * 	outfilename;
-	const PsToEditOptions & globaloptions;
+	PsToEditOptions & globaloptions;
 	const DriverDescription * driverDesc;
 	const char * 	driveroptions;
 	const bool	splitpages;

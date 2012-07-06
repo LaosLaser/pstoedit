@@ -81,7 +81,7 @@ drvbase::drvbase(const char *driveroptions_p, ostream & theoutStream,
 				 ostream & theerrStream,
 				 const char *nameOfInputFile_p,
 				 const char *nameOfOutputFile_p,
-				 const PsToEditOptions & globaloptions_p, 
+				 PsToEditOptions & globaloptions_p, 
 				 const DriverDescription * Pdriverdesc_p)
 :								// constructor
 Pdriverdesc(Pdriverdesc_p), 

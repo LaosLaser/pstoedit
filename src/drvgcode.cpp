@@ -34,6 +34,7 @@ drvGCODE::derivedConstructor(drvGCODE):
 constructBase
 {
 // driver specific initializations
+	
 }
 
 drvGCODE::~drvGCODE()

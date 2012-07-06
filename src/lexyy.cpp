@@ -4025,7 +4025,7 @@ void PSFrontEnd::addNumber(float a_number)
 
 PSFrontEnd::PSFrontEnd(ostream& outfile_p, 
 		ostream & errstream,
-		const PsToEditOptions & globaloptions_p,
+		PsToEditOptions & globaloptions_p,
 		const char * infilename_p,
 		const char * outfilename_p,
 		const DriverDescription * driverDesc_p,

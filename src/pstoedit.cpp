@@ -378,7 +378,7 @@ extern "C" DLLEXPORT
 	if (!options.quiet) {
 		errstream << "pstoedit: version " << version << " / DLL interface " <<
 		drvbaseVersion << " (built: " << __DATE__ << " - " << buildtype << " - " << compversion << ")" 
-		" : Copyright (C) 1993 - 2011 Wolfgang Glunz\n";
+		" : Copyright (C) 1993 - 2012 Wolfgang Glunz\n";
 	}
 
 	//  handling of derived parameters
