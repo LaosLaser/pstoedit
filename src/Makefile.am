@@ -14,6 +14,7 @@ endif
 
 if HAVE_LIBMAGICK
 LIBMAGICK_ENTRY=libp2edrvmagick++.la
+LIBLAOS_ENTRY=libp2edrvlaos.la
 endif
 
 if HAVE_LIBEMF
@@ -106,6 +107,10 @@ libp2edrvmagick___la_SOURCES=drvmagick++.cpp drvmagick++.h initlibrary.cpp
 libp2edrvmagick___la_LIBADD=${LIBMAGICK_LDFLAGS} libpstoedit.la
 libp2edrvmagick___la_LDFLAGS=-no-undefined -module
 # moved to configure.ac because needed only for g++ libp2edrvmagick___la_CPPFLAGS=$(LIBMAGICK_CFLAGS) $(AM_CPPFLAGS) -Wno-long-long
+# note the __ stand for ++ - automake treats all no alphanums chars as _
+libp2edrvlaos___la_SOURCES=drvlaos++.cpp drvlaos++.h initlibrary.cpp
+libp2edrvlaos___la_LIBADD=${LIBMAGICK_LDFLAGS} libpstoedit.la
+libp2edrvlaos___la_LDFLAGS=-no-undefined -module
 
 if USE_EMFBYSOURCE
 libp2edrvwmf_la_SOURCES=emflib.cpp drvwmf.cpp drvwmf.h initlibrary.cpp

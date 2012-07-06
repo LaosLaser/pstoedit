@@ -1,0 +1,52 @@
+LaOS README for PSTOEDIT
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Warning: THIS IS WORK IN PROGRESS. YMMV
+
+NOTE: libconfig is no longer needed to compile pstoedit!
+
+pstoedit compilation
+~~~~~~~~~~~~~~~~~~~~
+This should be as simple as running:
+    ./configure 
+	make 
+	make install
+Read the wiki for more information and platform specific caveats
+http://wiki.laoslaser.org
+
+How does it work?
+~~~~~~~~~~~~~~~~~
+Pstoedit reads the PostScript file and translates it into a file
+format that the LaOS firmware understands. Pstoedit can create 
+many different formats, to create laos files, so you need to add i
+the option "-f laos" to tell it that you want a LaOS file.
+
+To convert a postscript file on the command line, use:
+    pstoedit -f laos infile.ps outfile.lgc
+
+The CUPS printerdriver also calls pstoedit this way to convert
+a printed file into LaOS code. 
+
+TODO
+~~~~
+* improve image engraving
+* improve engraving of filled elements of vectors
+	* fill and stroke colors are not implemented correctly yet
+	* background color is not handled correctly in overlays
+	* stroke thickness is not handled correctly
+	* paths that consist of multiple unconnected polylines are 
+	  messed up
+* define config options as PostScript features
+* define a PostScript configfile that can be read 
+* make filter presets configurable (now in drvlaos.h)
+
+Changelog
+=========
+* pstoedit now recognizes CUPS images. CUPS translates images into 
+  bitmap fonts. Thanks to Wolfgang Glunz (pstoedit) we can now use
+  this image data in drvlaos.cpp directly.
+  FIXES: find out why pstoedit can read one type of image, but not other
+  Info: You need to use the -dgbm flag to enable the new behavior.
+  Your backend needs to define that it can accept PNG files. That enables i
+  the best support for images. All other ways have one or another restriction.
+

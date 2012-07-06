@@ -1,0 +1,90 @@
+%
+% laoscfg.ps
+% configuration file for drvlaos.h/cpp with pstoedit
+%
+/pstoedit.thinline {
+    currentlinewidth
+    % if you want it in device units, you need to scale it to device space
+    getcurrentscale mul
+    1 le
+    % if current line width is less or equal 1, then thinline returns true
+} def
+/pstoedit.redline {
+    %
+    % Now lets look for the color
+    %
+    currentrgbcolor % returns r g b - but there is a bool still on top of stack so stack holds: bool r g b
+    0 eq % on stack still: bool r g bool
+    exch
+    0 eq and % on stack r bool
+    exch
+    1 eq and % on stack bool bool
+    % if RGB = 100, then redline returns true
+} def
+/pstoedit.blackline {
+    %
+    % Black color
+    %
+    currentrgbcolor % returns r g b - but there is a bool still on top of stack so stack holds: bool r g b
+    0 eq % on stack still: bool r g bool
+    exch
+    0 eq and % on stack r bool
+    exch
+    0 eq and % on stack bool bool
+} def
+
+/pstoedit.hidestroke {
+    % these are the vectors that should not show up in the drawing, as they are used for cutting/marking:
+    pstoedit.blackline pstoedit.redline or
+    pstoedit.thinline and
+} def 
+
+
+[{
+%%BeginFeature: *LaserCuttingFrequency f10000
+%%EndFeature
+} stopped cleartomark
+[{
+%%BeginFeature: *LaserCuttingPower 80%
+%%EndFeature
+} stopped cleartomark
+[{
+%%BeginFeature: *LaserCuttingSpeed v2
+%%EndFeature
+} stopped cleartomark
+[{
+%%BeginFeature: *LaserEngravingInvert False
+%%EndFeature
+} stopped cleartomark
+[{
+%%BeginFeature: *LaserEngravingMode BW
+%%EndFeature
+} stopped cleartomark
+[{
+%%BeginFeature: *LaserEngravingPPI 120
+%%EndFeature
+} stopped cleartomark
+[{
+%%BeginFeature: *LaserEngravingPower 30
+%%EndFeature
+} stopped cleartomark
+[{
+%%BeginFeature: *LaserEngravingSpeed 70
+%%EndFeature
+} stopped cleartomark
+[{
+%%BeginFeature: *LaserMarkingFrequency mf10000
+%%EndFeature
+} stopped cleartomark
+[{
+%%BeginFeature: *LaserMarkingPower m80%
+%%EndFeature
+} stopped cleartomark
+[{
+%%BeginFeature: *LaserMarkingSpeed mv30
+%%EndFeature
+} stopped cleartomark
+[{
+%%BeginFeature: *LaserBoundaryBox True
+%%EndFeature
+} stopped cleartomark
