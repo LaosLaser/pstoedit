@@ -1152,12 +1152,23 @@ To get the pre 8.00 behaviour, either use -dNOEPS or run the file with (filename
 				if (options.verbose) {
 					commandline.addarg("-dESTACKPRINT");
 				}
+
 				if (options.withdisplay) {
 					commandline.addarg("-dNOPAUSE");
 				} else {
-					commandline.addarg("-dNODISPLAY");
+					if (options.pngimage.value.value()) {
+						commandline.addarg("-dNOPAUSE");
+						commandline.addarg("-dBATCH");
+						commandline.addarg("-sDEVICE=png16m");
+						RSString tempbuffer = "-sOutputFile=";
+						tempbuffer +=  options.pngimage.value;
+						commandline.addarg(tempbuffer.value());
+					} else {
+						commandline.addarg("-dNODISPLAY");
+					}
 				}
 				commandline.addarg("-dNOEPS"); // otherwise EPSF files create implicit showpages and a save/restore pair which disturbs the setPageSize handling
+
 				for (unsigned int psi = 0; psi < options.psArgs().argc; psi++) {
 					commandline.addarg(options.psArgs().argv[psi]);
 				}

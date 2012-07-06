@@ -132,6 +132,7 @@ public:
 	OptionT < RSString, RSStringValueExtractor> replacementfont;// = "Courier";
  	OptionT < bool, BoolTrueExtractor > nomaptoisolatin1 ;//= false;
 	OptionT < bool, BoolTrueExtractor > withdisplay ;//= false;
+	OptionT < RSString, RSStringValueExtractor> pngimage ;
 	OptionT < bool, BoolTrueExtractor > quiet ;//= false;
 	OptionT < bool, BoolTrueExtractor > noquit ;//= false;
 	OptionT < bool, BoolTrueExtractor > nocurves ;//= false;		// normally curves are shown as curves if backend supports
@@ -207,7 +208,7 @@ public:
 	nameOfInputFile  (0),
 	nameOfOutputFile (0),	// can contain %d for page splitting
 
-	nameOfIncludeFile	(true, "-include","name of a PostScript file to be included",g_t,"name of an option include file" ,
+	nameOfIncludeFile	(true, "-include","name of a PostScript file to be included",g_t,"name of PostScript file to be included" ,
 		"This options allows to specify an additional PostScript file that will be "
 		"executed just before the normal input is read. This is helpful for "
 		"including specific page settings or for disabling potentially unsafe "
@@ -231,6 +232,10 @@ public:
 		"Open a display during processing by Ghostscript. Some files "
 		"only work correctly this way. ",
 		false),
+
+	pngimage	(true, "-pngimage","filename - for debugging purpose mainly. Write result of processing also to a PNG file.",t_t,
+	"for debugging purpose mainly. Write result of processing also to a PNG file" ,UseDefaultDoku,(const char*) 0),
+
 	quiet				(true, "-q",noArgument,b_t,"quiet mode - do not write startup message" ,
 		UseDefaultDoku,
 		false),
@@ -582,6 +587,7 @@ public:
 	ADD(replacementfont);
 	ADD(nomaptoisolatin1);
 	ADD(withdisplay);
+	ADD(pngimage);
 	ADD(quiet);
 	ADD(noquit);
 	ADD(nocurves );
