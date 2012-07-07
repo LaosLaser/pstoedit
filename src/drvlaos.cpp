@@ -508,7 +508,9 @@ int drvLAOS::pixelValue(PixelPacket *pix) {
 }
    
 void drvLAOS::engrave_images()
-{   
+{
+    if (psfeatures["*LaserEngravingMode"].compare("BW") == 0)
+    {
             if (! fileExists(pngname.value()))
             {
                 errf << "PNG image " << pngname.value() << " not found, skip engraving" << endl;
@@ -639,6 +641,7 @@ void drvLAOS::engrave_images()
                     e_dir *= -1;
             } // for
             remove (pngname.value());
+    }
 }
 
 static DriverDescriptionT < drvLAOS > D_laos
