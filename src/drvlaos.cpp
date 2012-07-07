@@ -386,12 +386,12 @@ void drvLAOS::filterPresets()
     tc_out << "7 100 " << speed << endl;
     string s_power = psfeatures["*LaserCuttingPower"];
     s_power = s_power.substr(0, s_power.size() -1);
-    int power = atoi(s_speed.c_str()) * 100;
+    int power = atoi(s_power.c_str()) * 100;
     tc_out << "7 101 " << power << endl;
-    string s_freq = psfeatures["*LaserCuttingFrequency"];
-    s_freq = s_freq.substr(1, s_freq.size() -1);
-    int freq = atoi(s_freq.c_str());
-    tc_out << "7 102 " << freq << endl;
+    // string s_freq = psfeatures["*LaserCuttingFrequency"];
+    // s_freq = s_freq.substr(1, s_freq.size() -1);
+    // int freq = atoi(s_freq.c_str());
+    // tc_out << "7 102 " << freq << endl;
 
     // tm_out << "; marking" << endl;
     s_speed = psfeatures["*LaserMarkingSpeed"];
@@ -400,19 +400,19 @@ void drvLAOS::filterPresets()
     tm_out << "7 100 " << speed << endl;
     s_power = psfeatures["*LaserMarkingPower"];
     s_power = s_power.substr(1, s_power.size() -2);
-    power = atoi(s_speed.c_str()) * 100;
+    power = atoi(s_power.c_str()) * 100;
     tm_out << "7 101 " << power << endl;
-    s_freq = psfeatures["*LaserMarkingFrequency"];
-    s_freq = s_freq.substr(2, s_freq.size() -2);
-    freq = atoi(s_freq.c_str());
-    tm_out << "7 102 " << freq << endl;
+    // s_freq = psfeatures["*LaserMarkingFrequency"];
+    // s_freq = s_freq.substr(2, s_freq.size() -2);
+    // freq = atoi(s_freq.c_str());
+    // tm_out << "7 102 " << freq << endl;
 
     //te_out << "; engraving (" << filter << ")" << endl;
     s_speed = psfeatures["*LaserEngravingSpeed"];
     speed = atoi(s_speed.c_str()) * 1000;
     te_out << "7 100 " << speed << endl;
     s_power = psfeatures["*LaserEngravingPower"];
-    power = atoi(s_speed.c_str()) * 100;
+    power = atoi(s_power.c_str()) * 100;
     te_out << "7 101 " << power << endl;
 }
 
