@@ -557,7 +557,7 @@ void drvLAOS::engrave_images()
             int e_dir = 1;
             Point ur, offs;
             offs.x_ = imgfactor * g1->xOff();
-            offs.y_ = imgfactor * g1->yOff();
+            offs.y_ = imgfactor * (pngimage.baseRows()-rows-g1->yOff());
             ur.x_ = imgfactor * columns;
             ur.y_ = imgfactor * rows;
             if (Verbose())
@@ -570,13 +570,20 @@ void drvLAOS::engrave_images()
                     if (e_dir > 0) 
                     {
                         // move to beginning of line
-                        p.x_ = offs.x_;
+                        x = 0;
+                        while ((pixelValue((pixels+y*columns+x)) == 0) && (x<columns))
+                            x++;
+                        p.x_ = offs.x_ + x * imgfactor;
                         DoMoveTo(p);
+                        // calculate end of line
+                        unsigned int xm = columns;
+                        while ((pixelValue((pixels+y*columns+xm)) == 0) && (xm>x))
+                            xm--;
                         // create engraving data line
                         unsigned int val = 0;
                         int c = 0;
                         te_out << "9 " << bits << ' '<< columns;
-                        for (x=0; x<columns; x++) 
+                        while (x<xm)
                         {
                             val = val + (pixelValue((pixels+y*columns+x)) << c);
                             c += bits;
@@ -585,37 +592,48 @@ void drvLAOS::engrave_images()
                                 te_out << ' ' << val;
                                 val = 0; c = 0;
                             }
+                            x++;
                         }
                         if (c != 0 ) te_out << ' ' << val;
                         te_out << endl;
                         
                         // line to end of bitmap data
-                        p.x_ = offs.x_ + ur.x_;
+                        p.x_ = offs.x_ + xm * imgfactor;
                         LineTo(p);
                     } 
                     else 
                     {
                         // move to end of the line
-                        p.x_ = offs.x_ + ur.x_;
+                        x = columns;
+                        while ((pixelValue((pixels+y*columns+x)) == 0) && (x>0))
+                            x--;
+                        p.x_ = offs.x_ + x * imgfactor;
+                        // p.x_ = offs.x_ + ur.x_;
                         DoMoveTo(p);
+                        // calculate beginning of line
+                        unsigned int xm = 0;
+                        while ((pixelValue((pixels+y*columns+xm)) == 0) && (xm<x))
+                            xm++;
+
                         // create engraving data line
                         te_out << "9 " << bits << ' '<< columns;
                         unsigned int val = 0;
                         int c = 0;
-                        for (x=columns; x>0; x--)
+                        while (x>xm)
                         {
-                            val = val + (pixelValue((pixels+y*columns+x-1)) << c);
+                            val = val + (pixelValue((pixels+y*columns+x)) << c);
                             c += bits;
                             if (c == 32) 
                             {
                                 te_out << ' ' << val;
                                 val = 0; c = 0;
                             }
+                            x--;
                         }
                         if (c != 0 ) te_out << ' ' << val;
                         te_out << endl;
                         // line to beginning of bitmap data line
-                        p.x_ = offs.x_;
+                        p.x_ = offs.x_ + xm * imgfactor;
                         LineTo(p);
                     }
                     e_dir *= -1;
