@@ -41,7 +41,12 @@ using namespace Magick;
 #include <float.h>
 #include <map>
 
+#ifdef __APPLE__
+#define LAOS_CONFIG_FILE "/usr/local/share/pstoedit/laoscfg.ps"
+#endif
+#ifndef __APPLE__
 #define LAOS_CONFIG_FILE "laoscfg.ps"
+#endif
 
 class drvLAOS : public drvbase {
 
