@@ -426,7 +426,7 @@ void drvLAOS::show_path()
     Filter currentFilter(currentR(), currentG(), currentB(), currentLineWidth(), currentShowType() );
     if (filter != currentFilter.operation())
         filter = currentFilter.operation();
-   	const Point firstPoint = pathElement(0).getPoint(0);
+   	Point firstPoint = pathElement(0).getPoint(0);
     // cout << "Path begins at (" << firstPoint.x_ << ", " << firstPoint.y_ << ")" << endl;
     if ((filter == 1) || (filter == 2)) 
     { 
@@ -442,6 +442,7 @@ void drvLAOS::show_path()
                     // cout << "MoveTo (" << p.x_ << ", " << p.y_ << ")" << endl;
 				    MoveTo(p);
 				    currentPoint = p;
+                    		    firstPoint = p;
 			        break;
                 }
 		        case lineto:
