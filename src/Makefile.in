@@ -78,10 +78,10 @@ libp2edrvlaos___la_OBJECTS = $(am_libp2edrvlaos___la_OBJECTS)
 libp2edrvlaos___la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
 	$(CXXFLAGS) $(libp2edrvlaos___la_LDFLAGS) $(LDFLAGS) -o $@
-@HAVE_LIBMAGICK_TRUE@am_libp2edrvlaos___la_rpath = -rpath \
-@HAVE_LIBMAGICK_TRUE@	$(pkglibdir)
-@HAVE_LIBMAGICK_TRUE@am_libp2edrvmagick___la_rpath = -rpath \
-@HAVE_LIBMAGICK_TRUE@	$(pkglibdir)
+am_libp2edrvlaos___la_rpath = -rpath \
+$(pkglibdir)
+am_libp2edrvmagick___la_rpath = -rpath \
+$(pkglibdir)
 libp2edrvstd_la_DEPENDENCIES = libpstoedit.la
 am__objects_1 = drvgnplt.lo drvtgif.lo drvfig.lo drvidraw.lo
 am__objects_2 = drvsampl.lo
@@ -319,8 +319,9 @@ EXTRA_DIST = pstoedit.ph makefile.txt
 # LIBPLUGINS_ENTRY=libp2edrvplugins.la
 @HAVE_LIBPLOTTER_TRUE@LIBPLOTTER_ENTRY = libp2edrvlplot.la
 @HAVE_LIBMING_TRUE@LIBMING_ENTRY = libp2edrvswf.la
-@HAVE_LIBMAGICK_TRUE@LIBMAGICK_ENTRY = libp2edrvmagick++.la libp2edrvlaos.la
+@HAVE_LIBMAGICK_TRUE@LIBMAGICK_ENTRY = libp2edrvmagick++.la 
 @HAVE_LIBEMF_TRUE@LIBEMF_ENTRY = libp2edrvwmf.la
+LIBLAOS_ENTRY = libp2edrvlaos.la
 AM_CPPFLAGS = \
 	${LIBPLOTTER_CFLAGS}			\
 	${LIBMING_CFLAGS}			\
@@ -338,6 +339,7 @@ pkglib_LTLIBRARIES = libp2edrvstd.la		\
 	${LIBPLUGINS_ENTRY}			\
 	${LIBPLOTTER_ENTRY}			\
 	${LIBMING_ENTRY}			\
+	${LIBLAOS_ENTRY}			\
 	${LIBMAGICK_ENTRY}			\
 	${LIBEMF_ENTRY}
 
@@ -401,7 +403,7 @@ libp2edrvmagick___la_SOURCES = drvmagick++.cpp drvmagick++.h initlibrary.cpp
 libp2edrvmagick___la_LIBADD = ${LIBMAGICK_LDFLAGS} libpstoedit.la
 libp2edrvmagick___la_LDFLAGS = -no-undefined -module
 libp2edrvlaos___la_SOURCES = drvlaos.cpp drvlaos.h initlibrary.cpp
-libp2edrvlaos___la_LIBADD = ${LIBMAGICK_LDFLAGS} libpstoedit.la
+libp2edrvlaos___la_LIBADD = libpstoedit.la
 libp2edrvlaos___la_LDFLAGS = -no-undefined -module
 @USE_EMFBYSOURCE_FALSE@libp2edrvwmf_la_SOURCES = drvwmf.cpp drvwmf.h initlibrary.cpp
 # moved to configure.ac because needed only for g++ libp2edrvmagick___la_CPPFLAGS=$(LIBMAGICK_CFLAGS) $(AM_CPPFLAGS) -Wno-long-long

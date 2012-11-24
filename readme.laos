@@ -50,3 +50,8 @@ Changelog
   Your backend needs to define that it can accept PNG files. That enables i
   the best support for images. All other ways have one or another restriction.
 
+Links
+=====
+Libpng:
+* http://www.libpng.org/pub/png/libpng-1.2.5-manual.html
+* http://zarb.org/~gc/html/libpng.html

@@ -28,18 +28,11 @@
 */
 
 #include "drvbase.h"
-#ifdef _WIN32
-// Magic++ needs WIN32
-#ifndef WIN32
-#define WIN32
-#endif
-#endif
-#include <Magick++.h>
 using namespace std;
-using namespace Magick;
 
 #include <float.h>
 #include <map>
+#include <png.h>
 
 #ifdef __APPLE__
 #define LAOS_CONFIG_FILE "/usr/local/share/pstoedit/laoscfg.ps"
@@ -47,6 +40,8 @@ using namespace Magick;
 #ifndef __APPLE__
 #define LAOS_CONFIG_FILE "laoscfg.ps"
 #endif
+
+#define MaxRGB 255
 
 class drvLAOS : public drvbase {
 
@@ -116,7 +111,7 @@ private:
                     return _fill_engrave;
             }
 	};
-    class EngraveImage
+/*    class EngraveImage
     {
         public:
             string filename;
@@ -129,29 +124,36 @@ private:
                 this->p2.x_ = p2.x_; this->p2.y_ = p2.y_;
             }
     };
+*/
     ofstream tc_out, tm_out, te_out;
     RSString tc_outname, tm_outname, te_outname, pngname;
     map<string,string> psfeatures;  
-    list<EngraveImage> engraveImg;
+    // list<EngraveImage> engraveImg;
 	FilterType filter;
 	float scale, imgFactor;
-	int digits, bits, threshold, bpp;
+	int digits, bits, threshold, bpp, width, height;
 	Point curPos, imgOffset; // Current position
 	bool doMove;
-    Image *imageptr;
+    png_bytep * row_pointers;
+    int engravedir;
+    float imgfactor_x;
+    float imgfactor_y;
+
+    // Image *imageptr;
 	int Substitute(string &src, string key, double value, double scale, int digits);
 	int Substitute(string &src, string key, int value);
 	int Substitute(string &src, string key, string value);	  
 	int Substitute(string &src, string key, double value);
 	int Substitute( string &src, Point p );
 	void LineTo(Point p);
-    void ImageLineTo(Point p, list<Coordinate> *pcl);
+    void engraveLine(int x_start, int x_end, int y);
+    // void ImageLineTo(Point p, list<Coordinate> *pcl);
 	void DoMoveTo(Point p);
 	void MoveTo(Point p);
 	void ReadFeatures(const char * filename);
     void filterPresets();
     void catFile(RSString *name);
-    int pixelValue(PixelPacket *pix);
+    int pixelValue(png_byte* ptr);
     void engrave_images();
 };
 #endif

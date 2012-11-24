@@ -14,8 +14,9 @@ endif
 
 if HAVE_LIBMAGICK
 LIBMAGICK_ENTRY=libp2edrvmagick++.la
-LIBLAOS_ENTRY=libp2edrvlaos.la
 endif
+
+LIBLAOS_ENTRY=libp2edrvlaos.la
 
 if HAVE_LIBEMF
 LIBEMF_ENTRY=libp2edrvwmf.la

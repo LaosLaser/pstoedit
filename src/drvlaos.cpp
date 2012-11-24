@@ -54,9 +54,8 @@
 #include <time.h>
 #include <version.h>
 #include "cppcomp.h"
-#if defined(HAVESTL) && defined(HAVE_MAGIC)
-// Magick++ can only be compiled with STL
-#include "drvmagick++.h"
+#define PNG_DEBUG 3
+#include <png.h>
 
 //
 // Constructor: load config file
@@ -116,16 +115,6 @@ drvLAOS::derivedConstructor(drvLAOS): constructBase
     te_outname = full_qualified_tempnam("psengrave");
     te_out.open(te_outname.value());
 
-    // Windows needs to initialize ImageMagick
-    // TODO: there might be a need to add a path here!
-    try 
-    {
-        InitializeMagick(0);
-    } 
-    catch (Exception & error_) 
-    {
-        cout << "Caught exception: " << error_.what() << endl;
-    }
     pngname = full_qualified_tempnam("pngtmp");
     if (Verbose()) {
         cout << "temporary PNG written to " << pngname << endl;
@@ -502,14 +491,70 @@ void drvLAOS::show_path()
     } // else if filter != 1 /2
 }
 
-int drvLAOS::pixelValue(PixelPacket *pix) {
-    float val = (3.0 * MaxRGB - pix->red - pix->blue - pix->green) * ( MaxRGB - pix->opacity);
-    val = val / (3.0 * MaxRGB * MaxRGB) * bpp;
+int drvLAOS::pixelValue(png_byte* ptr) {
+    float val = 3.0 * MaxRGB - ptr[0] - ptr[1] - ptr[2];
+    val = val / (3.0 * MaxRGB) * bpp;
     return (int) val;
 }
-   
+
+void drvLAOS::engraveLine(int x_start, int x_end, int y) {
+    png_byte* row = row_pointers[y];
+    if (engravedir != 1) {
+        // swap begin and end
+        int x_tmp = x_start;
+        x_start = x_end;
+        x_end = x_tmp;
+    }
+    Point p (x_start * imgfactor_x, (height-y) * imgfactor_y);
+    DoMoveTo(p);
+        
+    // create engraving data line
+    unsigned int val = 0;
+    int c = 0;
+    int columns = abs(x_start-x_end);
+    te_out << "9 " << bits << ' '<< columns;
+    int x;
+    // printf("engraveLine from %d to %d step %d\n", x_start, x_end, engravedir);
+    if (engravedir == 1)
+        for (x=x_start; x<x_end+1; x++) {
+            val = val + (pixelValue(&(row[x*3])) << c);
+            c += bits;
+            if (c == 32) {
+                te_out << ' ' << val;
+                val = 0; c = 0;
+            }
+        }
+    else 
+        for (x=x_start; x>x_end-1; x--) {
+            val = val + (pixelValue(&(row[x*3])) << c);
+            c += bits;
+            if (c == 32) {
+                te_out << ' ' << val;
+                val = 0; c = 0;
+            }
+        }
+    if (c != 0 ) te_out << ' ' << val;
+    te_out << endl;
+         
+    // line to end of bitmap data
+    p.x_ = x_end * imgfactor_x;
+    LineTo(p);
+    engravedir = -1 * engravedir;
+} 
+
 void drvLAOS::engrave_images()
 {
+    int x, y;
+
+    png_byte color_type;
+    png_byte bit_depth;
+
+    png_structp png_ptr;
+    png_infop info_ptr;
+    int number_of_passes;
+    // png_bytep * row_pointers;
+    engravedir = 1;
+
     if (psfeatures["*LaserEngravingMode"].compare("BW") == 0)
     {
             if (! fileExists(pngname.value()))
@@ -517,130 +562,107 @@ void drvLAOS::engrave_images()
                 errf << "PNG image " << pngname.value() << " not found, skip engraving" << endl;
                 return;
             }
+    
+            png_byte header[8];    // 8 is the maximum size that can be checked
+
+            /* open file and test for it being a png */
+            FILE *fp = fopen(pngname.value(), "rb");
+            if (!fp) {
+                errf << "[read_png_file] File " << pngname.value() << "could not be opened for reading" << endl;
+                return;
+            }
+            fread(header, 1, 8, fp);
+            if (png_sig_cmp(header, 0, 8)) {
+                errf << "[read_png_file] File " << pngname.value() << "is not recognized as a PNG file" << endl;
+                return;
+            }
             filter = _stroke_engrave;
-            Image pngimage(pngname.value());
-            // pngimage.flip();
 
-            float imgfactor = atof(psfeatures["*PageLength"].c_str()) / pngimage.columns();
+            /* initialize stuff */
+            png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+
+            if (!png_ptr) {
+                errf << "[read_png_file] png_create_read_struct failed" << endl;
+                return;
+            }
+
+            info_ptr = png_create_info_struct(png_ptr);
+            if (!info_ptr) {
+                errf << "[read_png_file] png_create_info_struct failed" << endl;
+                return;
+            }
+
+            if (setjmp(png_jmpbuf(png_ptr))) {
+                errf << "[read_png_file] Error during init_io" << endl;
+                return;
+            }
+
+            png_init_io(png_ptr, fp);
+            png_set_sig_bytes(png_ptr, 8);
+
+            png_read_info(png_ptr, info_ptr);
+
+            width = png_get_image_width(png_ptr, info_ptr);
+            height = png_get_image_height(png_ptr, info_ptr);
+            color_type = png_get_color_type(png_ptr, info_ptr);
+            bit_depth = png_get_bit_depth(png_ptr, info_ptr);
+
+            number_of_passes = png_set_interlace_handling(png_ptr);
+            png_read_update_info(png_ptr, info_ptr);
+
+            /* read file */
+            if (setjmp(png_jmpbuf(png_ptr))) {
+                errf << "[read_png_file] Error during read_image" << endl;
+                return;
+            }
+            row_pointers = (png_bytep*) malloc(sizeof(png_bytep) * height);
+            for (y=0; y<height; y++)
+                row_pointers[y] = (png_byte*) malloc(png_get_rowbytes(png_ptr,info_ptr));
+
+            png_read_image(png_ptr, row_pointers);
+
+            fclose(fp);
+
+            imgfactor_y = atof(psfeatures["*PageWidth"].c_str()) / height;
             // Factor for Y-Axis should match X-Axis: does this work for LandScape/Portrait?
-            float imgfactor2 = atof(psfeatures["*PageWidth"].c_str()) / pngimage.rows();
-            if (imgfactor - imgfactor2 > 0.001) 
-                errf << "Image Scaling error: X and Y scaling is not the same: X=" << imgfactor << ", Y=" << imgfactor2 << endl;
+            imgfactor_x = atof(psfeatures["*PageLength"].c_str()) / width;
+            if ((imgfactor_x - imgfactor_y) > 0.001) {
+                errf << "Image Scaling error: X and Y scaling is not the same: X=" << imgfactor_x << ", Y=" << imgfactor_y << endl;
+            }
             if (Verbose()) 
-                cout << "Image factor X=" << imgfactor << ", Y= " << imgfactor2 << endl;
-
-            Geometry *g1 = new Geometry();
-            *g1 = pngimage.boundingBox();
-            pngimage.trim();
-            unsigned int rows = pngimage.rows();
-            unsigned int columns = pngimage.columns();
-            if (Verbose()) {
-                cout << "Trimmed from " << pngimage.baseColumns() << "x" << pngimage.baseRows();
-                cout << " to: " << columns << "x" << rows << " with offset " << g1->xOff() << "x" << g1->yOff() << endl;
+                cout << "Image factor X=" << imgfactor_x << ", Y=" << imgfactor_y << endl;
+            
+            if (png_get_color_type(png_ptr, info_ptr) != PNG_COLOR_TYPE_RGB) {
+                cout << "[process_file] input file is not PNG_COLOR_TYPE_RGB, cannot handle this type" << endl;
+                return;
             }
-            Pixels my_pixel_cache(pngimage); // allocate an image pixel cache associated with my_image
-            PixelPacket* pixels = my_pixel_cache.get(0, 0, columns, rows);
-            if ((rows == pngimage.baseRows()) && (columns == pngimage.baseColumns()))
-            {
-                // check if we're looking at empty white image
-                // if no resize, then it's quite likely
-                unsigned int val=0;
-                for (unsigned int y=0; y<10; y++) // if no bits in first 10 lines after trim, it must be empty
-                {
-                    for (unsigned int x=0; x<columns; x++)
-                    {
-                        val = pixelValue(pixels+y*columns+x);
-                        if (val != 0) break;
-                    }
-                    if (val != 0) break;
+
+            for (y=0; y<height; y++) {
+                png_byte* row = row_pointers[y];
+                for (x=0; x<width; x++) {
+                    png_byte* ptr = &(row[x*3]);
+                    if (ptr[0]+ptr[1]+ptr[2] != 3*MaxRGB) break;
                 }
-                if (val == 0)
-                    return;
-            }
-            int e_dir = 1;
-            Point ur, offs;
-            offs.x_ = imgfactor * g1->xOff();
-            offs.y_ = imgfactor * (pngimage.baseRows()-rows-g1->yOff());
-            ur.x_ = imgfactor * columns;
-            ur.y_ = imgfactor * rows;
-            if (Verbose())
-                cout << "Image size (" << ur.x_ << ", " << ur.y_ << " with offset: (" << offs.x_ << ", " << offs.y_ << ")" << endl;
-            for (unsigned int y=0; y<rows; y++) 
-            {
-                    unsigned int x;
-                    float ypos = offs.y_+ (ur.y_) * (float)(rows - y) / (float)rows;
-                    Point p(0, ypos);
-                    if (e_dir > 0) 
-                    {
-                        // move to beginning of line
-                        x = 0;
-                        while ((pixelValue((pixels+y*columns+x)) == 0) && (x<columns))
-                            x++;
-                        p.x_ = offs.x_ + x * imgfactor;
-                        DoMoveTo(p);
-                        // calculate end of line
-                        unsigned int xm = columns;
-                        while ((pixelValue((pixels+y*columns+xm)) == 0) && (xm>x))
-                            xm--;
-                        // create engraving data line
-                        unsigned int val = 0;
-                        int c = 0;
-                        te_out << "9 " << bits << ' '<< columns;
-                        while (x<xm)
-                        {
-                            val = val + (pixelValue((pixels+y*columns+x)) << c);
-                            c += bits;
-                            if (c == 32) 
-                            {
-                                te_out << ' ' << val;
-                                val = 0; c = 0;
-                            }
-                            x++;
-                        }
-                        if (c != 0 ) te_out << ' ' << val;
-                        te_out << endl;
-                        
-                        // line to end of bitmap data
-                        p.x_ = offs.x_ + xm * imgfactor;
-                        LineTo(p);
-                    } 
-                    else 
-                    {
-                        // move to end of the line
-                        x = columns;
-                        while ((pixelValue((pixels+y*columns+x)) == 0) && (x>0))
-                            x--;
-                        p.x_ = offs.x_ + x * imgfactor;
-                        // p.x_ = offs.x_ + ur.x_;
-                        DoMoveTo(p);
-                        // calculate beginning of line
-                        unsigned int xm = 0;
-                        while ((pixelValue((pixels+y*columns+xm)) == 0) && (xm<x))
-                            xm++;
+                int first = x;
+                for (x=width-1; x>0; --x) {
+                    png_byte* ptr = &(row[x*3]);
+                    if (ptr[0]+ptr[1]+ptr[2] != 3*MaxRGB) break;
+                }
+                int last = x;
 
-                        // create engraving data line
-                        te_out << "9 " << bits << ' '<< columns;
-                        unsigned int val = 0;
-                        int c = 0;
-                        while (x>xm)
-                        {
-                            val = val + (pixelValue((pixels+y*columns+x)) << c);
-                            c += bits;
-                            if (c == 32) 
-                            {
-                                te_out << ' ' << val;
-                                val = 0; c = 0;
-                            }
-                            x--;
-                        }
-                        if (c != 0 ) te_out << ' ' << val;
-                        te_out << endl;
-                        // line to beginning of bitmap data line
-                        p.x_ = offs.x_ + xm * imgfactor;
-                        LineTo(p);
+                if (first<last) {
+                    engraveLine(first, last, y);
+                    /*
+                    printf("Line %d starts at pixel %d\n", y, first);
+                    printf("Line %d ends at pixel %d\n", y, last);
+                    for (x=first; x<last+1; x++) {
+                        png_byte* ptr = &(row[x*3]);
+                        printf("Pixel at position [ %d - %d ] has RGB values: %d - %d - %d \n",
+                            x, y, ptr[0], ptr[1], ptr[2]);
                     }
-                    e_dir *= -1;
-            } // for
+                    */
+                }
+            }   
             remove (pngname.value());
     }
 }
@@ -667,8 +689,3 @@ static DriverDescriptionT < drvLAOS > D_laos
     DriverDescription::normalopen, false,	// if format supports multiple pages in one file
     false /*clipping */ 
 );
-
-#else
-// NO SUPPORT FOR MAGIC WITHOUT STL
-#pragma NO_SUPPORT_FOR_MAGIC_WITHOUT_STL_AND_IMAGEMAGICK_HEADERS
-#endif
