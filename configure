@@ -16,6 +16,18 @@
 ## M4sh Initialization. ##
 ## -------------------- ##
 
+#
+# apple specific addition for libpng (needed with laos)
+#
+if test -z "${CXXFLAGS+set}" ; then :
+    case $OSTYPE in #(
+        darwin*) :
+            CXXFLAGS="-I/usr/X11/include/libpng15 -L/usr/X11/lib -lpng15" ;; #(
+        *) :
+        ;;
+    esac
+fi
+
 # Be more Bourne compatible
 DUALCASE=1; export DUALCASE # for MKS sh
 if test -n "${ZSH_VERSION+set}" && (emulate sh) >/dev/null 2>&1; then :
