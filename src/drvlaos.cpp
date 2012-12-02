@@ -127,10 +127,10 @@ drvLAOS::derivedConstructor(drvLAOS): constructBase
     globaloptions_p.psArgs.copyvalue_simple(resolution);  /* set resolution */
 
 #ifdef __APPLE__ 
-    RSString test(drvbase::pstoeditDataDir());
+    RSString test("/usr/local/share/pstoedit");
 #endif
 #ifndef __APPLE__
-    RSString test("/usr/local/share/pstoedit"):
+    RSString test(drvbase::pstoeditDataDir());
 #endif
     test += directoryDelimiter;
     test += LAOS_CONFIG_FILE;
