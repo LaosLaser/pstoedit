@@ -34,12 +34,17 @@ using namespace std;
 #include <map>
 #include <png.h>
 
-#ifdef __APPLE__
-#define LAOS_CONFIG_FILE "/usr/local/share/pstoedit/laoscfg.ps"
-#endif
-#ifndef __APPLE__
+//
+// There is some confusion over what MAC OSX needs...
+// You might need to uncomment the lines below if the path
+// to the config file is not correct.
+//
+// #ifdef __APPLE__
+//#define LAOS_CONFIG_FILE "/usr/local/share/pstoedit/laoscfg.ps"
+//#endif
+//#ifndef __APPLE__
 #define LAOS_CONFIG_FILE "laoscfg.ps"
-#endif
+//#endif
 
 #define MaxRGB 255
 
