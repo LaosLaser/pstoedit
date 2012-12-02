@@ -126,7 +126,12 @@ drvLAOS::derivedConstructor(drvLAOS): constructBase
     sprintf(resolution, "-r%sx%s", psfeatures["*LaserEngravingPPI"].c_str(), psfeatures["*LaserEngravingPPI"].c_str());
     globaloptions_p.psArgs.copyvalue_simple(resolution);  /* set resolution */
 
+#ifdef __APPLE__ 
     RSString test(drvbase::pstoeditDataDir());
+#endif
+#ifndef __APPLE__
+    RSString test("/usr/local/share/pstoedit"):
+#endif
     test += directoryDelimiter;
     test += LAOS_CONFIG_FILE;
 
