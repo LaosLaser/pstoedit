@@ -77,7 +77,7 @@ am_libp2edrvlaos___la_OBJECTS = drvlaos.lo initlibrary.lo
 libp2edrvlaos___la_OBJECTS = $(am_libp2edrvlaos___la_OBJECTS)
 libp2edrvlaos___la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
-	$(CXXFLAGS) $(libp2edrvlaos___la_LDFLAGS) $(LDFLAGS) -o $@
+	$(CXXFLAGS) $(libp2edrvlaos___la_LDFLAGS) $(LDFLAGS)$(LIBPNG_LDFLAGS) -o $@
 am_libp2edrvlaos___la_rpath = -rpath \
 $(pkglibdir)
 am_libp2edrvmagick___la_rpath = -rpath \
